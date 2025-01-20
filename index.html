@@ -3,14 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dynamic Light Graph</title>
+    <title>Website Status Checker</title>
     <link rel="stylesheet" href="styles.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Real-Time Light Effect Graph</h1>
-        <canvas id="lightGraph"></canvas>
+        <h1>Website Status Checker</h1>
+        <div class="input-section">
+            <input type="text" id="websiteUrl" placeholder="Enter Website URL">
+            <button id="checkStatus">Start</button>
+        </div>
+        <canvas id="statusChart"></canvas>
+        <div id="loadingMessage">Checking website status...</div>
     </div>
     <script src="script.js"></script>
 </body>
