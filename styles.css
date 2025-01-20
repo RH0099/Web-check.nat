@@ -1,0 +1,23 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #000; /* Black background */
+    color: #fff; /* White text */
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+
+.container {
+    text-align: center;
+    width: 80%;
+    max-width: 800px;
+}
+
+canvas {
+    background: #1e1e1e; /* Dark grey for the chart background */
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.2);
+}
