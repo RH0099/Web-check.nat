@@ -1,28 +1,21 @@
-const ctx = document.getElementById('lightGraph').getContext('2d');
+const ctx = document.getElementById('statusChart').getContext('2d');
 
-const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-gradient.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
-gradient.addColorStop(1, 'rgba(0, 0, 0, 0)');
-
-const data = {
-    labels: Array.from({ length: 20 }, (_, i) => i + 1), // Time points
-    datasets: [{
-        label: 'Live Data',
-        data: Array.from({ length: 20 }, () => Math.random() * 100), // Random data
-        borderColor: '#00ff00',
-        borderWidth: 3,
-        fill: true,
-        backgroundColor: gradient,
-        pointBackgroundColor: '#ffffff',
-        pointBorderColor: '#00ff00',
-        pointRadius: 5,
-        pointHoverRadius: 10
-    }]
-};
-
-const config = {
+// Chart Configuration
+const chart = new Chart(ctx, {
     type: 'line',
-    data: data,
+    data: {
+        labels: [], // Time points
+        datasets: [{
+            label: 'Response Time (ms)',
+            data: [],
+            borderColor: '#00ff99',
+            borderWidth: 2,
+            backgroundColor: 'rgba(0, 255, 153, 0.1)',
+            pointBackgroundColor: '#fff',
+            pointBorderColor: '#00ff99',
+            pointRadius: 4,
+        }]
+    },
     options: {
         responsive: true,
         plugins: {
@@ -41,27 +34,58 @@ const config = {
                     color: 'rgba(255, 255, 255, 0.1)'
                 }
             }
-        },
-        elements: {
-            point: {
-                radius: 6,
-                hoverRadius: 8,
-                backgroundColor: 'rgba(255, 255, 0, 0.8)',
-                borderColor: '#fff',
-                hoverBorderColor: 'rgba(255, 0, 0, 0.9)',
-                shadowBlur: 10,
-                shadowColor: 'rgba(255, 255, 255, 0.8)'
-            }
         }
     }
-};
+});
 
-const chart = new Chart(ctx, config);
+const checkStatusButton = document.getElementById('checkStatus');
+const websiteUrlInput = document.getElementById('websiteUrl');
+const loadingMessage = document.getElementById('loadingMessage');
 
-// Update the graph data dynamically
-setInterval(() => {
-    data.datasets[0].data.shift();
-    data.datasets[0].data.push(Math.random() * 100);
+// Function to Ping Website
+async function checkWebsiteStatus(url) {
+    const startTime = Date.now();
+    try {
+        await fetch(url, { method: 'HEAD', mode: 'no-cors' }); // Simple HEAD request
+        const responseTime = Date.now() - startTime;
+        return responseTime; // Response time in milliseconds
+    } catch (error) {
+        return -1; // Error condition
+    }
+}
+
+// Update Chart Data
+function updateChart(responseTime) {
+    const currentTime = new Date().toLocaleTimeString();
+    chart.data.labels.push(currentTime);
+    chart.data.datasets[0].data.push(responseTime);
+
+    if (chart.data.labels.length > 20) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+    }
+
     chart.update();
-}, 1000);
-          
+}
+
+// Event Listener for Button Click
+checkStatusButton.addEventListener('click', async () => {
+    const url = websiteUrlInput.value;
+    if (!url) {
+        alert('Please enter a website URL.');
+        return;
+    }
+
+    loadingMessage.style.display = 'block';
+    const intervalId = setInterval(async () => {
+        const responseTime = await checkWebsiteStatus(url);
+        if (responseTime === -1) {
+            alert('Website is unreachable or invalid.');
+            clearInterval(intervalId);
+            loadingMessage.style.display = 'none';
+        } else {
+            updateChart(responseTime);
+        }
+    }, 1000);
+});
+        
